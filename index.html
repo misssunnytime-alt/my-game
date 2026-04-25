@@ -5,597 +5,70 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <title>Office Energy Match｜打工人能量管理消消乐</title>
 <style>
-  * {
-    box-sizing: border-box;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  :root {
-    --bg1: #ffe9d6;
-    --bg2: #f9b8a8;
-    --card: rgba(255,255,255,0.82);
-    --dark: #3d2b2b;
-    --muted: #7a6262;
-    --green: #35b66f;
-    --orange: #ff9f43;
-    --red: #ff4d4f;
-    --blue: #4d8dff;
-    --purple: #8e63ff;
-    --shadow: 0 12px 30px rgba(83, 45, 45, .18);
-  }
-
-  body {
-    margin: 0;
-    min-height: 100vh;
-    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
-    color: var(--dark);
-    background:
-      radial-gradient(circle at 18% 10%, rgba(255,255,255,.9), transparent 20%),
-      radial-gradient(circle at 85% 8%, rgba(255,248,187,.8), transparent 19%),
-      linear-gradient(145deg, var(--bg1), var(--bg2));
-    overflow: hidden;
-  }
-
-  .app {
-    width: min(460px, 100vw);
-    height: 100vh;
-    margin: 0 auto;
-    padding: max(8px, env(safe-area-inset-top)) 10px max(6px, env(safe-area-inset-bottom));
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    position: relative;
-  }
-
-  .top {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 8px;
-    align-items: center;
-  }
-
-  .title {
-    text-align: left;
-  }
-
-  .title h1 {
-    font-size: 18px;
-    line-height: 1.1;
-    margin: 0;
-    letter-spacing: .3px;
-  }
-
-  .title p {
-    font-size: 11px;
-    margin: 4px 0 0;
-    color: var(--muted);
-  }
-
-  .btns {
-    display: flex;
-    gap: 6px;
-  }
-
-  button {
-    border: 0;
-    border-radius: 999px;
-    padding: 9px 11px;
-    background: rgba(255,255,255,.86);
-    color: var(--dark);
-    font-weight: 800;
-    box-shadow: 0 6px 14px rgba(74, 42, 42, .14);
-    cursor: pointer;
-  }
-
-  button:active {
-    transform: scale(.96);
-  }
-
-  .hud {
-    display: grid;
-    grid-template-columns: 1.25fr .75fr .75fr;
-    gap: 8px;
-  }
-
-  .panel {
-    background: var(--card);
-    border: 1px solid rgba(255,255,255,.65);
-    border-radius: 16px;
-    padding: 7px;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(8px);
-  }
-
-  .stat-label {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    color: var(--muted);
-    margin-bottom: 5px;
-  }
-
-  .energy-bar {
-    height: 14px;
-    border-radius: 999px;
-    overflow: hidden;
-    background: rgba(73, 45, 45, .12);
-  }
-
-  .energy-fill {
-    height: 100%;
-    width: 60%;
-    border-radius: 999px;
-    background: linear-gradient(90deg, var(--green), #f5d74d, var(--orange), var(--red));
-    transition: width .24s ease;
-  }
-
-  .mini-number {
-    font-size: 18px;
-    font-weight: 900;
-    line-height: 1.1;
-  }
-
-  .mini-label {
-    font-size: 10px;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  .boss-area {
-    height: 0;
-    position: relative;
-    background: transparent;
-    border: 0;
-    overflow: visible;
-    z-index: 18;
-  }
-
-  .boss {
-    position: absolute;
-    left: 50%;
-    top: -88px;
-    transform: translateX(-50%);
-    width: 150px;
-    height: 58px;
-    display: grid;
-    grid-template-columns: 48px 1fr;
-    gap: 8px;
-    align-items: center;
-    padding: 7px 10px;
-    border-radius: 16px;
-    background: linear-gradient(180deg, #4c4c57, #282833);
-    color: white;
-    box-shadow: 0 18px 30px rgba(0,0,0,.28);
-    transition: top .45s cubic-bezier(.16, 1, .3, 1);
-  }
-
-  .boss.show { top: 4px; }
-
-  .boss-face {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: #ffd0a6;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 26px;
-    border: 3px solid rgba(255,255,255,.25);
-  }
-
-  .boss-text {
-    text-align: left;
-    font-size: 12px;
-    font-weight: 900;
-  }
-
-  .boss-text span {
-    display: block;
-    font-size: 10px;
-    color: rgba(255,255,255,.74);
-    margin-top: 2px;
-    font-weight: 600;
-  }
-
-  .message {
-    position: absolute;
-    left: 50%;
-    top: 34%;
-    transform: translate(-50%, -50%);
-    z-index: 12;
-    padding: 12px 18px;
-    border-radius: 16px;
-    background: rgba(255,255,255,.92);
-    box-shadow: var(--shadow);
-    font-size: 22px;
-    font-weight: 1000;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .18s, transform .18s;
-    white-space: nowrap;
-  }
-
-  .message.show {
-    opacity: 1;
-    transform: translate(-50%, -58%) scale(1.02);
-  }
-
-  .board-wrap {
-    flex: 1;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .board {
-    flex: 1;
-    min-height: 270px;
-    display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    grid-auto-rows: 1fr;
-    gap: 4px;
-    padding: 6px;
-    border-radius: 18px;
-    background: rgba(255,255,255,.56);
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,.5), var(--shadow);
-    position: relative;
-  }
-
-  .tile {
-    position: relative;
-    border-radius: 14px;
-    background: rgba(255,255,255,.86);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: clamp(22px, 6vw, 30px);
-    box-shadow: 0 7px 12px rgba(83,45,45,.14);
-    transition: transform .14s ease, opacity .14s, filter .14s;
-    cursor: pointer;
-    overflow: hidden;
-  }
-
-  .tile::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: linear-gradient(160deg, rgba(255,255,255,.55), transparent 45%);
-    pointer-events: none;
-  }
-
-  .tile:active { transform: scale(.9) translateY(2px); }
-
-  .tile.food {
-    background: linear-gradient(145deg, #fff9df, #fff2bd);
-  }
-
-  .tile.meat {
-    background: linear-gradient(145deg, #ffe0cf, #ffb38e);
-    box-shadow: 0 0 0 2px rgba(255,125,71,.28), 0 7px 12px rgba(83,45,45,.16);
-    animation: meatPulse .7s infinite alternate;
-  }
-
-  .tile.meat::before {
-    content: attr(data-left);
-    position: absolute;
-    left: 4px;
-    top: 3px;
-    font-size: 11px;
-    font-weight: 1000;
-    color: #fff;
-    background: rgba(255,77,79,.86);
-    border-radius: 999px;
-    padding: 1px 5px;
-    z-index: 3;
-  }
-
-  @keyframes meatPulse {
-    from { transform: scale(1); }
-    to { transform: scale(1.04); }
-  }
-
-  .tile.work {
-    background: linear-gradient(145deg, #e8edff, #d7ddf5);
-  }
-
-  .tile.locked {
-    filter: grayscale(1);
-    opacity: .46;
-    box-shadow: inset 0 0 0 2px rgba(90,90,90,.28);
-  }
-
-  .tile.locked::before {
-    content: "🔒";
-    position: absolute;
-    right: 3px;
-    top: 2px;
-    font-size: 14px;
-    z-index: 2;
-  }
-
-  .tile.pop {
-    animation: pop .22s ease;
-  }
-
-  @keyframes pop {
-    0% { transform: scale(.88); }
-    70% { transform: scale(1.12); }
-    100% { transform: scale(1); }
-  }
-
-  .slot-row {
-    background: rgba(255,255,255,.7);
-    border-radius: 18px;
-    padding: 6px;
-    box-shadow: var(--shadow);
-  }
-
-  .slot-title {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    color: var(--muted);
-    margin: 0 3px 6px;
-  }
-
-  .slots {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 4px;
-  }
-
-  .slot {
-    height: 40px;
-    border-radius: 13px;
-    background: rgba(74,45,45,.09);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    border: 1px dashed rgba(85,54,54,.12);
-  }
-
-  .slot.filled {
-    background: rgba(255,255,255,.92);
-    box-shadow: 0 5px 10px rgba(83,45,45,.12);
-    border: none;
-  }
-
-  .skill-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .action {
-    border-radius: 16px;
-    padding: 10px;
-    background: rgba(255,255,255,.82);
-    box-shadow: var(--shadow);
-    font-size: 13px;
-    font-weight: 900;
-  }
-
-  .action.disabled {
-    opacity: .42;
-  }
-
-  .danger {
-    animation: pulseRed 1s infinite;
-  }
-
-  @keyframes pulseRed {
-    0%, 100% { box-shadow: inset 0 0 0 0 rgba(255,77,79,0); }
-    50% { box-shadow: inset 0 0 0 8px rgba(255,77,79,.18); }
-  }
-
-  .shake {
-    animation: shake .25s linear;
-  }
-
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-6px); }
-    75% { transform: translateX(6px); }
-  }
-
-  .overlay {
-    position: absolute;
-    inset: 0;
-    z-index: 30;
-    background: rgba(50,31,31,.72);
-    backdrop-filter: blur(8px);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-
-  .overlay.show { display: flex; }
-
-  .modal {
-    width: 100%;
-    max-width: 390px;
-    background: rgba(255,255,255,.94);
-    border-radius: 28px;
-    padding: 24px;
-    box-shadow: 0 20px 60px rgba(0,0,0,.28);
-    text-align: center;
-  }
-
-  .modal h2 {
-    font-size: 28px;
-    margin: 0 0 8px;
-  }
-
-  .modal p {
-    color: var(--muted);
-    line-height: 1.6;
-    margin: 8px 0;
-  }
-
-  .modal .big {
-    font-size: 42px;
-    font-weight: 1000;
-    margin: 12px 0;
-  }
-
-  .toast {
-    position: absolute;
-    left: 50%;
-    bottom: 128px;
-    transform: translateX(-50%);
-    background: rgba(61,43,43,.88);
-    color: white;
-    border-radius: 999px;
-    padding: 9px 14px;
-    font-size: 13px;
-    font-weight: 800;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .2s, bottom .2s;
-    z-index: 20;
-    white-space: nowrap;
-  }
-
-  .toast.show {
-    opacity: 1;
-    bottom: 142px;
-  }
-
-  .float {
-    position: absolute;
-    z-index: 15;
-    font-size: 22px;
-    font-weight: 1000;
-    pointer-events: none;
-    animation: flyup 1.65s ease forwards;
-    text-shadow: 0 2px 8px rgba(255,255,255,.8);
-  }
-
-  @keyframes flyup {
-    from { opacity: 0; transform: translate(-50%, 0) scale(.88); }
-    12% { opacity: 1; }
-    72% { opacity: 1; }
-    to { opacity: 0; transform: translate(-50%, -64px) scale(1.12); }
-  }
-
-  .footer-hint {
-    text-align: center;
-    font-size: 10px;
-    color: rgba(61,43,43,.62);
-    margin-top: -2px;
-  }
+*{box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;width:100%;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",Arial,sans-serif;color:#3b2a2a;background:linear-gradient(145deg,#ffe8d0,#f6ad9f);overflow-x:hidden}
+.app{width:min(430px,100vw);margin:0 auto;padding:max(8px,env(safe-area-inset-top)) 10px max(8px,env(safe-area-inset-bottom))}
+.top{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin-bottom:6px}
+.title h1{margin:0;font-size:20px;line-height:1.05;font-weight:1000}
+.title p{margin:4px 0 0;font-size:12px;color:#7b6464}
+.btns{display:flex;gap:6px}
+button{border:0;border-radius:999px;padding:9px 12px;background:rgba(255,255,255,.86);font-weight:900;color:#3b2a2a;box-shadow:0 6px 14px rgba(80,45,45,.14)}
+.hud{display:grid;grid-template-columns:1fr .72fr .64fr;gap:7px;margin-bottom:7px}
+.panel{background:rgba(255,255,255,.76);border:1px solid rgba(255,255,255,.78);border-radius:16px;padding:8px;box-shadow:0 8px 20px rgba(83,45,45,.13);backdrop-filter:blur(6px)}
+.stat-label{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#7a6262;margin-bottom:5px}
+.stat-label b{font-size:15px;color:#6a4e4e}
+.bar{height:14px;border-radius:999px;background:rgba(80,45,45,.12);overflow:hidden}
+.fill{height:100%;border-radius:999px;transition:width .22s ease}
+.energy-fill{background:linear-gradient(90deg,#1fc96b,#f6d943,#ff7a46,#ff4a57)}
+.idle-fill{background:linear-gradient(90deg,#7cc8ff,#8e63ff,#ff4d4f)}
+.time-num{font-size:28px;font-weight:1000;line-height:1}
+.time-label{font-size:11px;color:#7a6262;margin-top:2px}
+.task{margin-bottom:7px}
+.task-head{display:flex;justify-content:space-between;font-size:13px;color:#7a6262;margin-bottom:8px}
+.task-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.task-item{background:rgba(255,255,255,.58);border-radius:13px;padding:8px 6px;text-align:center;font-size:15px;font-weight:1000;white-space:nowrap}
+.bossbar{height:50px;margin:0 0 7px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.8);border-radius:16px;box-shadow:0 8px 20px rgba(83,45,45,.13);overflow:hidden}
+.boss{height:100%;display:grid;grid-template-columns:42px 1fr;gap:8px;align-items:center;padding:6px 12px;background:linear-gradient(145deg,#efefef,#fff);color:#8a7474;transition:all .2s ease}
+.boss.active{background:linear-gradient(145deg,#9c1e2e,#ff445b);color:#fff;animation:bossPulse .65s infinite alternate}
+@keyframes bossPulse{from{filter:brightness(1)}to{filter:brightness(1.12)}}
+.boss-face{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.72);font-size:22px}
+.boss-main{font-weight:1000;font-size:14px;line-height:1.1}
+.boss-sub{font-size:11px;opacity:.84;margin-top:3px}
+.board{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;padding:6px;border-radius:18px;background:rgba(255,255,255,.56);box-shadow:inset 0 0 0 1px rgba(255,255,255,.5),0 10px 24px rgba(83,45,45,.14);margin:0 0 7px}
+.tile{aspect-ratio:1/1;width:100%;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:clamp(20px,6vw,29px);box-shadow:0 5px 10px rgba(83,45,45,.12);position:relative;overflow:hidden}
+.tile.food{background:linear-gradient(145deg,#fff8c8,#fff1a6)}
+.tile.work{background:linear-gradient(145deg,#eaf0ff,#d8e0f8)}
+.tile.meat{background:linear-gradient(145deg,#ffe2d0,#ffb48f);animation:meatPulse .55s infinite alternate}
+@keyframes meatPulse{from{transform:scale(1)}to{transform:scale(1.04)}}
+.tile.meat:before{content:attr(data-life);position:absolute;top:2px;right:3px;background:#ff4057;color:#fff;border-radius:999px;font-size:10px;padding:1px 5px;font-weight:1000}
+.tile.locked{filter:grayscale(1);opacity:.43;box-shadow:inset 0 0 0 2px rgba(80,80,80,.2)}
+.tile.locked:after{content:"🔒";position:absolute;top:1px;right:3px;font-size:14px}
+.slotbox{background:rgba(255,255,255,.72);border-radius:16px;padding:7px;box-shadow:0 8px 20px rgba(83,45,45,.13)}
+.slot-head{display:flex;justify-content:space-between;font-size:12px;color:#7a6262;margin:0 2px 6px}
+.slots{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.slot{height:38px;border-radius:12px;background:rgba(80,45,45,.08);border:1px dashed rgba(80,45,45,.16);display:flex;align-items:center;justify-content:center;font-size:23px}
+.slot.filled{background:rgba(255,255,255,.92);border:none;box-shadow:0 4px 9px rgba(83,45,45,.11)}
+.footer{font-size:11px;text-align:center;color:#7a6262;margin-top:6px}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:rgba(59,42,42,.9);color:#fff;border-radius:999px;padding:9px 14px;font-size:13px;font-weight:900;opacity:0;pointer-events:none;transition:.2s;z-index:20;white-space:nowrap}
+.toast.show{opacity:1;bottom:110px}
+.float{position:fixed;left:50%;bottom:132px;transform:translateX(-50%);font-size:21px;font-weight:1000;pointer-events:none;z-index:30;animation:fly 1.65s ease forwards;text-shadow:0 2px 8px rgba(255,255,255,.9)}
+@keyframes fly{0%{opacity:0;transform:translate(-50%,0) scale(.9)}12%{opacity:1}72%{opacity:1}100%{opacity:0;transform:translate(-50%,-64px) scale(1.1)}}
+.overlay{position:fixed;inset:0;background:rgba(50,31,31,.72);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+.overlay.show{display:flex}
+.modal{max-width:360px;width:100%;background:rgba(255,255,255,.94);border-radius:24px;padding:22px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal h2{margin:0 0 8px;font-size:26px}
+.modal p{color:#7a6262;line-height:1.6}
+.modal .big{font-size:38px;font-weight:1000;margin:10px 0}
+@media (max-height:760px){
+  .title h1{font-size:18px}.title p{font-size:11px}
+  .panel{padding:7px}.task-item{font-size:14px;padding:7px 4px}
+  .bossbar{height:46px}.slot{height:34px}
+  .board{gap:4px;padding:5px}
+}
 </style>
-
-<style id="v13-hard-fix">
-  /* 老板状态条：固定在任务条与棋盘之间，不允许漂浮覆盖棋盘 */
-  .boss-area {
-    height: 54px !important;
-    position: relative !important;
-    display: block !important;
-    margin: 4px 0 6px !important;
-    background: rgba(255,255,255,.72) !important;
-    border: 1px solid rgba(255,255,255,.78) !important;
-    border-radius: 16px !important;
-    overflow: hidden !important;
-    box-shadow: 0 8px 20px rgba(83,45,45,.14) !important;
-    z-index: 1 !important;
-  }
-
-  .boss {
-    position: relative !important;
-    inset: auto !important;
-    left: auto !important;
-    right: auto !important;
-    top: auto !important;
-    bottom: auto !important;
-    transform: none !important;
-    width: 100% !important;
-    height: 100% !important;
-    display: grid !important;
-    grid-template-columns: 42px 1fr !important;
-    align-items: center !important;
-    gap: 8px !important;
-    padding: 6px 12px !important;
-    border-radius: 16px !important;
-    background: linear-gradient(145deg, #eeeeee, #ffffff) !important;
-    color: #8a7a7a !important;
-    box-shadow: none !important;
-  }
-
-  .boss.show {
-    position: relative !important;
-    inset: auto !important;
-    transform: none !important;
-    background: linear-gradient(145deg, #9d1f2f, #ff4158) !important;
-    color: white !important;
-    animation: bossAlert .65s infinite alternate !important;
-  }
-
-  .boss-face {
-    width: 34px !important;
-    height: 34px !important;
-    min-width: 34px !important;
-    border-radius: 50% !important;
-    background: rgba(255,255,255,.72) !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    font-size: 22px !important;
-  }
-
-  .boss-text {
-    text-align: left !important;
-    font-size: 14px !important;
-    line-height: 1.12 !important;
-    font-weight: 1000 !important;
-  }
-
-  .boss-text span {
-    display: block !important;
-    font-size: 11px !important;
-    margin-top: 3px !important;
-    opacity: .82 !important;
-  }
-
-  /* 棋盘：整体长方形，内部每个图标严格正方形 */
-  .board {
-    flex: 0 0 auto !important;
-    min-height: 0 !important;
-    height: auto !important;
-    display: grid !important;
-    grid-template-columns: repeat(8, 1fr) !important;
-    grid-auto-rows: auto !important;
-    gap: 5px !important;
-    padding: 6px !important;
-    border-radius: 18px !important;
-  }
-
-  .tile {
-    width: 100% !important;
-    aspect-ratio: 1 / 1 !important;
-    height: auto !important;
-    min-height: 0 !important;
-    border-radius: 13px !important;
-    font-size: clamp(22px, 6vw, 30px) !important;
-  }
-
-  .board-wrap {
-    flex: 0 0 auto !important;
-  }
-
-  .slot-row {
-    margin-top: 4px !important;
-  }
-</style>
-
 </head>
 <body>
-<div class="app" id="app">
+<div class="app">
   <div class="top">
     <div class="title">
       <h1>🎮 打工人能量管理消消乐</h1>
@@ -610,626 +83,278 @@
   <div class="hud">
     <div class="panel">
       <div class="stat-label"><span>能量</span><b id="energyText">60/100</b></div>
-      <div class="energy-bar"><div class="energy-fill" id="energyFill"></div></div>
+      <div class="bar"><div class="fill energy-fill" id="energyFill" style="width:60%"></div></div>
     </div>
     <div class="panel">
       <div class="stat-label"><span>摸鱼值</span><b id="idleText">0/3</b></div>
-      <div class="energy-bar"><div class="energy-fill" id="idleFill" style="width:0%; background:linear-gradient(90deg,#7cc8ff,#8e63ff,#ff4d4f);"></div></div>
+      <div class="bar"><div class="fill idle-fill" id="idleFill" style="width:0%"></div></div>
     </div>
     <div class="panel">
-      <div class="mini-number" id="timeText">180</div>
-      <div class="mini-label">剩余秒</div>
+      <div class="time-num" id="timeText">180</div>
+      <div class="time-label">剩余秒</div>
     </div>
   </div>
 
-  <div class="hud" style="display:none;">
-    <div class="panel">
-      <div class="mini-number" id="workText">0</div>
-      <div class="mini-label">老板期工作组</div>
-    </div>
-    <div class="panel">
-      <div class="mini-number" id="comboText">0</div>
-      <div class="mini-label">连击</div>
+  <div class="panel task">
+    <div class="task-head"><span>今日下班任务</span><b id="taskTotal">0/8</b></div>
+    <div class="task-grid">
+      <div class="task-item" id="taskEmail">📧 邮件 0/4</div>
+      <div class="task-item" id="taskPpt">📊 PPT 0/2</div>
+      <div class="task-item" id="taskMeet">👨‍💻 会议 0/2</div>
     </div>
   </div>
 
-  <div class="panel" style="padding:10px 12px;">
-    <div class="stat-label" style="margin-bottom:7px;"><span>今日下班任务</span><b id="taskTotalText">0/8</b></div>
-    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; font-size:12px; font-weight:900;">
-      <div id="taskMsg" style="background:rgba(255,255,255,.64); border-radius:12px; padding:7px;">📧 邮件 0/4</div>
-      <div id="taskMeet" style="background:rgba(255,255,255,.64); border-radius:12px; padding:7px;">📊 PPT 0/2</div>
-      <div id="taskPpt" style="background:rgba(255,255,255,.64); border-radius:12px; padding:7px;">👨‍💻 会议 0/2</div>
-    </div>
-  </div>
-
-  <div class="boss-area" id="bossArea">
-    <div class="boss" id="boss">
+  <div class="bossbar">
+    <div class="boss" id="bossBox">
       <div class="boss-face">👔</div>
-      <div class="boss-text" id="bossText">老板 Working...<span id="bossHint">摸鱼值满格后触发</span></div>
-    </div>
-  </div>
-  </div>
-
-  <div class="board-wrap">
-    <div class="board" id="board"></div>
-
-    <div class="slot-row">
-      <div class="slot-title">
-        <span>临时槽位：5格，3个相同自动消除</span>
-        <span id="slotTip">0/7</span>
+      <div>
+        <div class="boss-main" id="bossMain">老板工作中</div>
+        <div class="boss-sub" id="bossSub">摸鱼值满格后触发</div>
       </div>
-      <div class="slots" id="slots"></div>
-    </div>
-
-    <div class="skill-row" style="display:none;">
-      <button class="action" id="undoBtn">↩️ 反悔 -10能量（2次）</button>
-      <button class="action" id="shuffleBtn">🔄 重排 -8能量（1次）</button>
-    </div>
-    <div class="footer-hint">目标：5格槽位里抢肉、苟命、清任务，3分钟内下班。</div>
-  </div>
-
-  <div class="message" id="message">下班！</div>
-  <div class="toast" id="toast"></div>
-
-  <div class="overlay show" id="startOverlay">
-    <div class="modal">
-      <h2>打工开始 🧃</h2>
-      <p>点击棋盘图标进入下方槽位，<b>3 个相同</b>自动消除。</p>
-      <p>素食常驻但回血少；肉食随机掉落，只存在3秒，同类三消大回血。三消后会飘出能量和摸鱼值变化。</p>
-      <button id="startBtn" style="width:100%; padding:14px; margin-top:10px; background:#3d2b2b; color:white;">开始上班</button>
     </div>
   </div>
 
-  <div class="overlay" id="endOverlay">
-    <div class="modal">
-      <h2 id="endTitle">结算</h2>
-      <p id="endDesc"></p>
-      <div class="big" id="endScore">0</div>
-      <p id="endStats"></p>
-      <button id="againBtn" style="width:100%; padding:14px; margin-top:10px; background:#3d2b2b; color:white;">再打一局</button>
-    </div>
+  <div class="board" id="board"></div>
+
+  <div class="slotbox">
+    <div class="slot-head"><span>临时槽位：5格，3个相同自动消除</span><span id="slotCount">0/5</span></div>
+    <div class="slots" id="slots"></div>
+  </div>
+  <div class="footer">目标：5格槽位里抢肉、苟命、清任务，3分钟内下班。</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="overlay show" id="startOverlay">
+  <div class="modal">
+    <h2>打工开始 🧃</h2>
+    <p>点击格子进入槽位，3个相同自动消除。</p>
+    <p>素食回血少；肉食随机掉落，只存在3秒，同类三消大回血。</p>
+    <p>摸鱼值到3老板来，食物会被锁一半。</p>
+    <button id="startBtn" style="width:100%;padding:14px;background:#3b2a2a;color:#fff;margin-top:8px">开始上班</button>
+  </div>
+</div>
+
+<div class="overlay" id="endOverlay">
+  <div class="modal">
+    <h2 id="endTitle">结算</h2>
+    <p id="endDesc"></p>
+    <div class="big" id="endBig"></div>
+    <p id="endStats"></p>
+    <button id="againBtn" style="width:100%;padding:14px;background:#3b2a2a;color:#fff;margin-top:8px">再打一局</button>
   </div>
 </div>
 
 <script>
 (() => {
-  const ITEMS = [
-    // 常规棋盘只生成素食 + 工作；肉食改为限时掉落资源
-    { id: "apple", emoji: "🍎", kind: "food", energy: 3, score: 5, weight: 22 },
-    { id: "veg", emoji: "🥬", kind: "food", energy: 3, score: 5, weight: 22 },
-    { id: "carrot", emoji: "🥕", kind: "food", energy: 3, score: 5, weight: 16 },
+  const ROWS=5, COLS=8, TOTAL=ROWS*COLS;
+  const SLOT_MAX=5, MAX_ENERGY=100, FAIL_ENERGY=20, START_ENERGY=60, GAME_TIME=180;
+  const IDLE_LIMIT=3, BOSS_MIN_STAY=5;
 
-    { id: "msg", emoji: "📧", kind: "work", energy: -2, score: 10, weight: 18 },
-    { id: "mail", emoji: "📧", kind: "work", energy: -2, score: 10, weight: 10 },
-    { id: "meeting", emoji: "👨‍💻", kind: "work", energy: -5, score: 25, weight: 8 },
-    { id: "ppt", emoji: "📊", kind: "work", energy: -10, score: 50, weight: 4 }
+  const ITEMS=[
+    {id:"apple",emoji:"🍎",kind:"food",energy:3,weight:18},
+    {id:"veg",emoji:"🥬",kind:"food",energy:3,weight:22},
+    {id:"carrot",emoji:"🥕",kind:"food",energy:3,weight:16},
+    {id:"mail",emoji:"📧",kind:"work",energy:-2,weight:18},
+    {id:"ppt",emoji:"📊",kind:"work",energy:-10,weight:5},
+    {id:"meeting",emoji:"👨‍💻",kind:"work",energy:-6,weight:8}
+  ];
+  const MEATS=[
+    {id:"chicken",emoji:"🍗",kind:"meat",energy:8},
+    {id:"fish",emoji:"🐟",kind:"meat",energy:8},
+    {id:"steak",emoji:"🥩",kind:"meat",energy:8}
   ];
 
-  const MEATS = [
-    { id: "chicken", emoji: "🍗", kind: "meat", energy: 10, score: 20 },
-    { id: "fish", emoji: "🐟", kind: "meat", energy: 10, score: 20 },
-    { id: "steak", emoji: "🥩", kind: "meat", energy: 10, score: 20 }
-  ];
+  let board=[], slots=[], energy=START_ENERGY, idle=0, timeLeft=GAME_TIME;
+  let paused=true, ended=false, timer=null;
+  let boss=false, bossSeconds=0, bossCooldown=0;
+  let task={email:0,ppt:0,meeting:0}, target={email:4,ppt:2,meeting:2};
+  let meatDropIn=7, foodEnergy=0, workCost=0, completedFood=0, completedWork=0, bossCount=0;
 
-  const ROWS = 5;
-  const COLS = 8;
-  const TOTAL = ROWS * COLS;
-  const MAX_ENERGY = 100;
-  const START_ENERGY = 60;
-  const FAIL_ENERGY = 20;
-  const GAME_TIME = 180;
-  const SLOT_MAX = 5;
-  const IDLE_LIMIT = 3;
-  const BOSS_WORK_GROUPS_TO_LEAVE = 3;
-  const BOSS_COOLDOWN = 15;
-  const MEAT_LIFE = 3;
-  const MEAT_DROP_MIN = 6;
-  const MEAT_DROP_MAX = 10;
+  const $=id=>document.getElementById(id);
 
-  const boardEl = document.getElementById("board");
-  const slotsEl = document.getElementById("slots");
-  const appEl = document.getElementById("app");
-  const bossEl = document.getElementById("boss");
-  const messageEl = document.getElementById("message");
-  const toastEl = document.getElementById("toast");
-
-  let board = [];
-  let slots = [];
-  let energy = START_ENERGY;
-  let score = 0;
-  let timeLeft = GAME_TIME;
-  let idle = 0;
-  let combo = 0;
-  let bossActive = false;
-  let bossSeconds = 0;
-  let bossCooldown = 0;
-  let bossWorkGroups = 0;
-  let paused = true;
-  let ended = false;
-  let undoLeft = 2;
-  let shuffleLeft = 1;
-  let fullDebuff = 0;
-  let foodBuff = 0;
-  let workBuff = 0;
-  let foodStreak = 0;
-  let workStreak = 0;
-  let bossCount = 0;
-  let completedFoodGroups = 0;
-  let completedWorkGroups = 0;
-  let totalFoodEnergy = 0;
-  let totalWorkCost = 0;
-  let task = { email: 0, ppt: 0, meeting: 0 };
-  const taskTarget = { email: 4, ppt: 2, meeting: 2 };
-  let lastRemoved = null;
-  let meatDropIn = 7;
-  let meatDrops = 0;
-  let timer = null;
-
-  function weightedItem() {
-    const totalWeight = ITEMS.reduce((a,b)=>a+b.weight,0);
-    let r = Math.random() * totalWeight;
-    for (const item of ITEMS) {
-      r -= item.weight;
-      if (r <= 0) return {...item, uid: cryptoRandom(), locked: false};
-    }
-    return {...ITEMS[0], uid: cryptoRandom(), locked: false};
+  function uid(){return Math.random().toString(36).slice(2)}
+  function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+  function pickWeighted(){
+    const sum=ITEMS.reduce((a,b)=>a+b.weight,0);
+    let r=Math.random()*sum;
+    for(const it of ITEMS){r-=it.weight;if(r<=0)return {...it,locked:false,uid:uid()}}
+    return {...ITEMS[0],locked:false,uid:uid()}
   }
-
-  function randomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+  function pickMeat(){
+    const it=MEATS[randInt(0,MEATS.length-1)];
+    return {...it,locked:false,life:3,uid:uid()}
   }
-
-  function meatItem() {
-    const item = MEATS[Math.floor(Math.random() * MEATS.length)];
-    return {...item, uid: cryptoRandom(), locked: false, life: MEAT_LIFE};
+  function init(){
+    board=Array.from({length:TOTAL},pickWeighted);
+    slots=[];energy=START_ENERGY;idle=0;timeLeft=GAME_TIME;paused=true;ended=false;
+    boss=false;bossSeconds=0;bossCooldown=0;task={email:0,ppt:0,meeting:0};
+    meatDropIn=7;foodEnergy=0;workCost=0;completedFood=0;completedWork=0;bossCount=0;
+    $("startOverlay").classList.add("show");$("endOverlay").classList.remove("show");
+    updateBoss();render();
   }
-
-  function cryptoRandom() {
-    return Math.random().toString(36).slice(2) + Date.now().toString(36);
+  function start(){
+    paused=false;$("startOverlay").classList.remove("show");
+    clearInterval(timer);timer=setInterval(tick,1000);
+    toast("开始上班！");
   }
-
-  function init() {
-    board = Array.from({length: TOTAL}, weightedItem);
-    slots = [];
-    energy = START_ENERGY;
-    score = 0;
-    timeLeft = GAME_TIME;
-    idle = 0;
-    combo = 0;
-    bossActive = false;
-    bossSeconds = 0;
-    bossCooldown = 0;
-    bossWorkGroups = 0;
-    paused = true;
-    ended = false;
-    undoLeft = 2;
-    shuffleLeft = 1;
-    fullDebuff = 0;
-    foodBuff = 0;
-    workBuff = 0;
-    foodStreak = 0;
-    workStreak = 0;
-    bossCount = 0;
-    completedFoodGroups = 0;
-    completedWorkGroups = 0;
-    task = { email: 0, ppt: 0, meeting: 0 };
-    lastRemoved = null;
-    meatDropIn = randomInt(MEAT_DROP_MIN, MEAT_DROP_MAX);
-    meatDrops = 0;
-    bossEl.classList.remove("show");
-    updateBossStatus();
-    document.getElementById("startOverlay").classList.add("show");
-    document.getElementById("endOverlay").classList.remove("show");
-    render();
-  }
-
-  function start() {
-    paused = false;
-    document.getElementById("startOverlay").classList.remove("show");
-    clearInterval(timer);
-    timer = setInterval(tick, 1000);
-    toast("开始上班！先吃点，再干活。");
-  }
-
-  function tick() {
-    if (paused || ended) return;
-
-    let decay = 0.5;
-    if (bossActive) decay = 1.0;
-    if (energy <= 40) decay = 1.5;
-    if (fullDebuff > 0) decay *= 1.5;
-    energy -= decay;
-
-    if (bossCooldown > 0) bossCooldown--;
-    if (foodBuff > 0) foodBuff--;
-    if (workBuff > 0) workBuff--;
-    if (fullDebuff > 0) fullDebuff--;
-
+  function tick(){
+    if(paused||ended)return;
     tickMeat();
 
-    if (bossActive) {
+    let decay=0.5;
+    if(timeLeft<=60)decay*=1.3;
+    if(boss)decay*=1.35;
+    if(energy<=40)decay*=1.25;
+    energy-=decay;
+
+    if(bossCooldown>0)bossCooldown--;
+    if(boss){
       bossSeconds++;
-      if (bossSeconds % 3 === 0) lockFoodByBoss();
-      if (bossSeconds % 10 === 0) {
-        changeEnergy(-5);
-        showCenter("被催了 -5", true);
-      }
-      if (bossSeconds >= 30) lockFoodByBoss(0.6);
-      if (bossSeconds >= 5 && idle < 3) {
-        clearBoss(true);
-      }
+      if(bossSeconds%3===0)lockFood();
+      if(bossSeconds%10===0){changeEnergy(-5);floatText("被催了 -5","bad")}
+      if(bossSeconds>=BOSS_MIN_STAY && idle<IDLE_LIMIT)clearBoss();
     }
 
     timeLeft--;
-    if (timeLeft <= 0) return endGame(false, 'overtime');
-    if (energy <= FAIL_ENERGY) return endGame(false, 'energy');
-
-    ensureBoard();
+    if(timeLeft<=0)return end(false,"overtime");
+    if(energy<=FAIL_ENERGY)return end(false,"energy");
     render();
   }
-
-  function tickMeat() {
-    board.forEach((item, index) => {
-      if (item && item.kind === "meat") {
-        item.life -= 1;
-        if (item.life <= 0) {
-          board[index] = weightedItem();
-        }
-      }
+  function tickMeat(){
+    board.forEach((it,i)=>{
+      if(it.kind==="meat"){it.life--;if(it.life<=0)board[i]=pickWeighted()}
     });
-
-    meatDropIn -= 1;
-    if (meatDropIn <= 0) {
-      spawnMeatWave();
-      meatDropIn = randomInt(MEAT_DROP_MIN, MEAT_DROP_MAX);
-    }
+    meatDropIn--;
+    if(meatDropIn<=0){spawnMeat();meatDropIn=randInt(6,10)}
   }
-
-  function spawnMeatWave() {
-    const count = randomInt(3, 5);
-    const candidates = [];
-    board.forEach((item, index) => {
-      if (item && item.kind === "food" && !item.locked) candidates.push(index);
-    });
-    candidates.sort(() => Math.random() - 0.5);
-    for (let i = 0; i < Math.min(count, candidates.length); i++) {
-      board[candidates[i]] = meatItem();
-    }
-    meatDrops++;
+  function spawnMeat(){
+    const candidates=[];
+    board.forEach((it,i)=>{if(it.kind==="food"&&!it.locked)candidates.push(i)});
+    candidates.sort(()=>Math.random()-.5);
+    const n=Math.min(randInt(3,5),candidates.length);
+    for(let i=0;i<n;i++)board[candidates[i]]=pickMeat();
     toast("🥩 肉食掉落！3秒内抢同类！");
+  }
+  function clickTile(i){
+    if(paused||ended)return;
+    const it=board[i];
+    if(!it)return;
+    if(it.locked){toast("老板盯着呢，这个吃不了！");return}
+    if(slots.length>=SLOT_MAX){
+      const reason=foodEnergy>=workCost?"撑死了":"累死了";
+      return end(false,reason);
+    }
+    slots.push(it);
+    board[i]=pickWeighted();
+    checkMatch();
     render();
   }
-
-  function ensureBoard() {
-    while (board.length < TOTAL) board.push(weightedItem());
+  function checkMatch(){
+    const counts={};
+    for(const it of slots)counts[it.id]=(counts[it.id]||0)+1;
+    const id=Object.keys(counts).find(k=>counts[k]>=3);
+    if(!id)return;
+    const matched=[],remain=[];
+    for(const it of slots){
+      if(it.id===id && matched.length<3)matched.push(it); else remain.push(it);
+    }
+    slots=remain;
+    complete(matched[0]);
   }
-
-  function clickTile(index) {
-    if (paused || ended) return;
-    const item = board[index];
-    if (!item) return;
-    if (item.locked) {
-      shake();
-      toast("老板盯着呢，这个吃不了！");
-      return;
+  function complete(it){
+    if(it.kind==="food"){
+      const gain=it.energy*3;changeEnergy(gain);foodEnergy+=gain;completedFood++;
+      idle=Math.min(IDLE_LIMIT,idle+1);
+      floatText("+"+gain+" 能量","good");setTimeout(()=>floatText("+1 摸鱼","bad"),120);
+    }else if(it.kind==="meat"){
+      const gain=it.energy*3;changeEnergy(gain);foodEnergy+=gain;completedFood++;
+      idle=Math.min(IDLE_LIMIT,idle+1);
+      floatText("+"+gain+" 能量 肉食爆发！","good");setTimeout(()=>floatText("+1 摸鱼","bad"),120);
+    }else{
+      let cost=Math.abs(it.energy*3);
+      if(it.id==="ppt" && energy<40){toast("没力气做PPT，先吃点肉！");slots.push(it,it,it);return}
+      changeEnergy(-cost);workCost+=cost;completedWork++;
+      idle=Math.max(0,idle-(boss?1:2));
+      updateTask(it);
+      floatText("-"+cost+" 能量","work");setTimeout(()=>floatText(boss?"-1 摸鱼":"-2 摸鱼","good"),120);
+      if(done())return end(true,"done");
     }
-    if (slots.length >= SLOT_MAX) {
-      let result = totalFoodEnergy >= totalWorkCost ? "撑死了" : "累死了";
-      return endGame(false, result);
-      fullDebuff = 10;
-      shake();
-      toast("焦头烂额：槽位满了！能量开始加速下滑！");
-      return;
-    }
-
-    const [removed] = board.splice(index, 1);
-    lastRemoved = removed;
-    slots.push(removed);
-    checkSlots();
-    ensureBoard();
+    if(!boss && bossCooldown<=0 && idle>=IDLE_LIMIT)triggerBoss();
     render();
   }
-
-  function checkSlots() {
-    const counts = {};
-    slots.forEach(item => counts[item.id] = (counts[item.id] || 0) + 1);
-    const matchedId = Object.keys(counts).find(id => counts[id] >= 3);
-    if (!matchedId) return;
-
-    const matched = [];
-    const remain = [];
-    for (const item of slots) {
-      if (item.id === matchedId && matched.length < 3) matched.push(item);
-      else remain.push(item);
-    }
-    slots = remain;
-
-    const item = matched[0];
-    completeGroup(item);
+  function updateTask(it){
+    if(it.id==="mail")task.email=Math.min(target.email,task.email+1);
+    if(it.id==="ppt")task.ppt=Math.min(target.ppt,task.ppt+1);
+    if(it.id==="meeting")task.meeting=Math.min(target.meeting,task.meeting+1);
   }
-
-  function completeGroup(item) {
-    combo++;
-    score += item.score * 3 + Math.max(0, combo - 1) * 10;
-
-    if (item.kind === "food") {
-      completedFoodGroups++;
-      foodStreak++;
-      workStreak = 0;
-
-      let gain = item.energy * 3;
-      if (foodBuff > 0) gain = Math.ceil(gain * 1.5);
-      changeEnergy(gain);
-      totalFoodEnergy += gain;
-
-      idle += 1;
-      if (idle > IDLE_LIMIT) idle = IDLE_LIMIT;
-      showFloat("+" + gain + " 能量", "good", 0);
-      showFloat("+1 摸鱼", "bad", 26);
-
-      if (foodStreak >= 3) {
-        foodBuff = 10;
-        foodStreak = 0;
-        toast("🍱 回血加成：下一组素食 +50%");
-      }
-    } else if (item.kind === "meat") {
-      completedFoodGroups++;
-      foodStreak = 0;
-      workStreak = 0;
-
-      const gain = item.energy * 3;
-      changeEnergy(gain);
-      totalFoodEnergy += gain;
-      idle += 1;
-      if (idle > IDLE_LIMIT) idle = IDLE_LIMIT;
-      score += 30;
-      showFloat("+" + gain + " 能量 肉食爆发！", "good", 0);
-      showFloat("+1 摸鱼", "bad", 26);
-      toast("🥩 吃到肉了！可以干大活！");
-    } else {
-      completedWorkGroups++;
-      workStreak++;
-      foodStreak = 0;
-
-      let cost = Math.abs(item.energy * 3);
-      if (workBuff > 0) cost = Math.ceil(cost * 0.5);
-      changeEnergy(-cost);
-      totalWorkCost += cost;
-
-      idle -= (bossActive ? 1 : 2);
-      if (idle < 0) idle = 0;
-      showFloat("-" + cost + " 能量 / +" + (item.score * 3) + "分", "work", 0);
-      showFloat("-2 摸鱼", "good", 26);
-
-      updateTaskProgress(item);
-      const lines = ["好的收到！", "马上做！", "已读，安排！", "PPT在路上！"];
-      toast(lines[Math.floor(Math.random() * lines.length)]);
-
-      if (isTaskComplete()) {
-        return endGame(true, 'done');
-      }
-
-      if (bossActive) {
-        bossWorkGroups++;
-      }
-
-      if (workStreak >= 3) {
-        workBuff = 10;
-        workStreak = 0;
-        toast("⚡ 高效模式：下一组工作消耗减半");
-      }
-    }
-
-    if (!bossActive && bossCooldown <= 0 && idle >= IDLE_LIMIT) triggerBoss();
-
-    if (combo >= 2) showCenter("Combo ×" + combo + "!");
-    setTimeout(() => { combo = 0; render(); }, 1600);
+  function totalTask(){return task.email+task.ppt+task.meeting}
+  function done(){return task.email>=target.email&&task.ppt>=target.ppt&&task.meeting>=target.meeting}
+  function triggerBoss(){
+    boss=true;bossSeconds=0;bossCount++;updateBoss();lockFood();toast("老板来了：食物锁一半！");
   }
-
-  function updateTaskProgress(item) {
-    if (item.id === "msg" || item.id === "mail") task.email = Math.min(taskTarget.email, task.email + 1);
-    if (item.id === "ppt") task.ppt = Math.min(taskTarget.ppt, task.ppt + 1);
-    if (item.id === "meeting") task.meeting = Math.min(taskTarget.meeting, task.meeting + 1);
+  function clearBoss(){
+    boss=false;bossSeconds=0;bossCooldown=8;
+    board.forEach(it=>it.locked=false);
+    updateBoss();toast("老板继续工作去了。");
   }
-
-  function isTaskComplete() {
-    return task.email >= taskTarget.email && task.ppt >= taskTarget.ppt && task.meeting >= taskTarget.meeting;
+  function lockFood(){
+    board.forEach(it=>it.locked=false);
+    const foods=board.filter(it=>it.kind==="food");
+    foods.sort(()=>Math.random()-.5);
+    const n=Math.floor(foods.length*.5);
+    for(let i=0;i<n;i++)foods[i].locked=true;
   }
-
-  function taskTotal() {
-    return task.email + task.ppt + task.meeting;
+  function updateBoss(){
+    $("bossBox").classList.toggle("active",boss);
+    $("bossMain").textContent=boss?"老板来了":"老板工作中";
+    $("bossSub").textContent=boss?"食物锁一半，先降摸鱼值":"摸鱼值满格后触发";
   }
+  function changeEnergy(x){energy+=x;if(energy>MAX_ENERGY)energy=MAX_ENERGY}
+  function render(){
+    $("energyText").textContent=Math.floor(energy)+"/100";
+    $("energyFill").style.width=Math.max(0,Math.min(100,energy))+"%";
+    $("idleText").textContent=idle+"/"+IDLE_LIMIT+(idle>=2&&!boss?" 快满了":"");
+    $("idleFill").style.width=(idle/IDLE_LIMIT*100)+"%";
+    $("timeText").textContent=timeLeft;
+    $("taskTotal").textContent=totalTask()+"/8";
+    $("taskEmail").textContent=`📧 邮件 ${task.email}/${target.email}`;
+    $("taskPpt").textContent=`📊 PPT ${task.ppt}/${target.ppt}`;
+    $("taskMeet").textContent=`👨‍💻 会议 ${task.meeting}/${target.meeting}`;
+    $("slotCount").textContent=slots.length+"/"+SLOT_MAX;
 
-  function triggerBoss() {
-    bossActive = true;
-    bossSeconds = 0;
-    bossWorkGroups = 0;
-    bossCount++;
-    bossEl.classList.add("show");
-    updateBossStatus();
-    shake();
-    lockFoodByBoss(0.5);
-  }
-
-  function lockFoodByBoss(rate) {
-    rate = rate || (bossSeconds >= 30 ? 0.6 : 0.5);
-    board.forEach(item => item.locked = false);
-    const foods = board.filter(item => item.kind === "food");
-    const lockCount = Math.floor(foods.length * rate);
-    foods.sort(() => Math.random() - 0.5);
-    foods.slice(0, lockCount).forEach(item => item.locked = true);
-    render();
-  }
-
-  function clearBoss(success) {
-    bossActive = false;
-    bossSeconds = 0;
-    bossWorkGroups = 0;
-    bossCooldown = BOSS_COOLDOWN;
-    idle = 0;
-    board.forEach(item => item.locked = false);
-    bossEl.classList.remove("show");
-    updateBossStatus();
-    if (success) {
-      score += 50;
-      showCenter("下班！+50");
-      toast("老板继续工作去了。");
-    }
-    render();
-  }
-
-  function changeEnergy(delta) {
-    energy += delta;
-    if (energy > MAX_ENERGY) {
-      score += Math.round((energy - MAX_ENERGY) * 2);
-      energy = MAX_ENERGY;
-    }
-  }
-
-  function undo() {
-    if (paused || ended) return;
-    if (undoLeft <= 0) return toast("反悔次数用完了。");
-    if (slots.length <= 0) return toast("槽位里没有可退回的东西。");
-    if (energy <= 30) return toast("能量太低，别硬反悔了。");
-
-    const item = slots.pop();
-    item.locked = false;
-    board.unshift(item);
-    changeEnergy(-10);
-    undoLeft--;
-    toast("退回一个，能量 -10");
-    render();
-  }
-
-  function shuffleBoard() {
-    if (paused || ended) return;
-    if (shuffleLeft <= 0) return toast("重排次数用完了。");
-    if (energy <= 28) return toast("能量太低，先吃点。");
-
-    board.sort(() => Math.random() - 0.5);
-    changeEnergy(-8);
-    shuffleLeft--;
-    if (bossActive) lockFoodByBoss();
-    toast("桌面重排，能量 -8");
-    render();
-  }
-
-  function endGame(win, reason) {
-    let extra = "";
-    if(reason==="撑死了"||reason==="累死了"){
-      extra = "（" + reason + "）";
-    }
-    ended = true;
-    paused = true;
-    clearInterval(timer);
-    document.getElementById("endOverlay").classList.add("show");
-    document.getElementById("endTitle").innerText = win ? "活干完，下班！🎉" : (reason==="撑死了"||reason==="累死了" ? reason : (reason === "overtime" ? "下班失败：被迫加班 🫠" : "能量崩溃了 🫠"));
-    document.getElementById("endDesc").innerText = win
-      ? "你靠吃饭续命，把沟通、会议和PPT都清掉了。"
-      : (reason === "overtime" ? "3分钟到了，工作还没清完。老板：再改一版。" : "不是你不努力，是今天的工作真的太密了。");
-    document.getElementById("endScore").innerText = score + " 分";
-    document.getElementById("endStats").innerText =
-      `任务 ${taskTotal()}/8｜食物 ${completedFoodGroups} 组｜工作 ${completedWorkGroups} 组｜老板出现 ${bossCount} 次`;
-  }
-
-  function render() {
-    boardEl.innerHTML = "";
-    board.forEach((item, index) => {
-      const el = document.createElement("div");
-      el.className = `tile ${item.kind} ${item.locked ? "locked" : ""}`;
-      if (item.kind === "meat") el.setAttribute("data-left", item.life + "s");
-      el.textContent = item.emoji;
-      el.addEventListener("click", () => clickTile(index));
-      boardEl.appendChild(el);
+    const b=$("board");b.innerHTML="";
+    board.forEach((it,i)=>{
+      const d=document.createElement("div");
+      d.className=`tile ${it.kind==="work"?"work":it.kind==="meat"?"meat":"food"} ${it.locked?"locked":""}`;
+      if(it.kind==="meat")d.setAttribute("data-life",it.life+"s");
+      d.textContent=it.emoji;
+      d.onclick=()=>clickTile(i);
+      b.appendChild(d);
     });
-
-    slotsEl.innerHTML = "";
-    for (let i = 0; i < SLOT_MAX; i++) {
-      const el = document.createElement("div");
-      el.className = "slot" + (slots[i] ? " filled" : "");
-      el.textContent = slots[i] ? slots[i].emoji : "";
-      slotsEl.appendChild(el);
-    }
-
-    document.getElementById("energyText").innerText = Math.floor(energy) + "/100";
-    document.getElementById("energyFill").style.width = Math.max(0, Math.min(100, energy)) + "%";
-    
-    document.getElementById("timeText").innerText = timeLeft;
-    document.getElementById("idleText").innerText = idle + "/" + IDLE_LIMIT + (idle >= 2 && !bossActive ? "  快满了" : "");
-    document.getElementById("idleFill").style.width = (idle / IDLE_LIMIT * 100) + "%";
-    document.getElementById("workText").innerText = bossActive ? bossWorkGroups + "/" + BOSS_WORK_GROUPS_TO_LEAVE : "0";
-    document.getElementById("comboText").innerText = combo;
-    document.getElementById("slotTip").innerText = slots.length + "/" + SLOT_MAX;
-    document.getElementById("taskTotalText").innerText = taskTotal() + "/8";
-    document.getElementById("taskMsg").innerText = `📧 邮件 ${task.email}/${taskTarget.email}`;
-    document.getElementById("taskMeet").innerText = `📊 PPT ${task.ppt}/${taskTarget.ppt}`;
-    document.getElementById("taskPpt").innerText = `👨‍💻 会议 ${task.meeting}/${taskTarget.meeting}`;
-
-    document.getElementById("undoBtn").innerText = `↩️ 反悔 -10能量（${undoLeft}次）`;
-    document.getElementById("shuffleBtn").innerText = `🔄 重排 -8能量（${shuffleLeft}次）`;
-
-    document.getElementById("undoBtn").classList.toggle("disabled", undoLeft <= 0);
-    document.getElementById("shuffleBtn").classList.toggle("disabled", shuffleLeft <= 0);
-    appEl.classList.toggle("danger", energy <= 40);
-  }
-
-  function updateBossStatus() {
-    const bossText = document.getElementById("bossText");
-    const bossHint = document.getElementById("bossHint");
-    if (!bossText || !bossHint) return;
-    if (bossActive) {
-      bossText.childNodes[0].nodeValue = "Boss is coming";
-      bossHint.textContent = "食物锁一半，先降摸鱼值";
-    } else {
-      bossText.childNodes[0].nodeValue = "老板 Working...";
-      bossHint.textContent = "摸鱼值满格后触发";
+    const s=$("slots");s.innerHTML="";
+    for(let i=0;i<SLOT_MAX;i++){
+      const d=document.createElement("div");
+      d.className="slot"+(slots[i]?" filled":"");
+      d.textContent=slots[i]?slots[i].emoji:"";
+      s.appendChild(d);
     }
   }
-
-  function showCenter(text, scary) {
-    messageEl.textContent = text;
-    messageEl.style.color = scary ? "#ff4d4f" : "#35b66f";
-    messageEl.classList.add("show");
-    setTimeout(() => messageEl.classList.remove("show"), 900);
+  function end(win,reason){
+    ended=true;paused=true;clearInterval(timer);
+    $("endOverlay").classList.add("show");
+    $("endTitle").textContent=win?"活干完，下班！🎉":(reason==="overtime"?"下班失败：被迫加班 🫠":reason==="撑死了"?"撑死了 🤢":reason==="累死了"?"累死了 🫠":"能量崩溃了 🫠");
+    $("endDesc").textContent=win?"你靠吃饭续命，把今日任务清掉了。":(reason==="overtime"?"3分钟到了，工作还没清完。老板：再改一版。":reason==="撑死了"?"你一直补能量，却忘了清任务。":reason==="累死了"?"你一直硬干活，身体跟不上了。":"不是你不努力，是今天的工作真的太密了。");
+    $("endBig").textContent=win?"下班":"失败";
+    $("endStats").textContent=`任务 ${totalTask()}/8｜食物 ${completedFood}组｜工作 ${completedWork}组｜老板出现 ${bossCount}次`;
   }
-
-  function showFloat(text, type, offsetY = 0) {
-    const el = document.createElement("div");
-    el.className = "float";
-    el.textContent = text;
-    el.style.left = "50%";
-    el.style.top = `72%`;
-    el.style.marginTop = offsetY + "px";
-    el.style.color = type === "good" ? "#25a85f" : (type === "bad" ? "#ff4d4f" : "#4d8dff");
-    appEl.appendChild(el);
-    setTimeout(() => el.remove(), 1750);
-  }
-
-  let toastTimer = null;
-  function toast(text) {
-    toastEl.textContent = text;
-    toastEl.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toastEl.classList.remove("show"), 1400);
-  }
-
-  function shake() {
-    appEl.classList.add("shake");
-    setTimeout(() => appEl.classList.remove("shake"), 280);
-  }
-
-  document.getElementById("startBtn").addEventListener("click", start);
-  document.getElementById("againBtn").addEventListener("click", init);
-  document.getElementById("restartBtn").addEventListener("click", init);
-  document.getElementById("undoBtn").addEventListener("click", undo);
-  document.getElementById("shuffleBtn").addEventListener("click", shuffleBoard);
-  document.getElementById("pauseBtn").addEventListener("click", () => {
-    if (ended) return;
-    paused = !paused;
-    document.getElementById("pauseBtn").innerText = paused ? "继续" : "暂停";
-    toast(paused ? "已暂停" : "继续上班");
-  });
-
+  let toastTimer=null;
+  function toast(t){const el=$("toast");el.textContent=t;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),1600)}
+  function floatText(t,type){const el=document.createElement("div");el.className="float";el.textContent=t;el.style.color=type==="good"?"#25a85f":type==="bad"?"#ff4d4f":"#4d8dff";document.body.appendChild(el);setTimeout(()=>el.remove(),1750)}
+  $("startBtn").onclick=start;
+  $("againBtn").onclick=init;
+  $("restartBtn").onclick=init;
+  $("pauseBtn").onclick=()=>{if(ended)return;paused=!paused;$("pauseBtn").textContent=paused?"继续":"暂停";toast(paused?"已暂停":"继续上班")};
   init();
 })();
 </script>
