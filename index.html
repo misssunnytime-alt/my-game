@@ -152,6 +152,11 @@
   }
 
   .boss {
+    position: fixed;
+    right: 10px;
+    top: 80px;
+    z-index: 50;
+
     position: absolute;
     left: 50%;
     top: -88px;
@@ -510,7 +515,8 @@
       <div class="energy-bar"><div class="energy-fill" id="energyFill"></div></div>
     </div>
     <div class="panel">
-      
+      <div class="mini-number" id="scoreRemoved">0</div>
+      <div class="mini-label">分数</div>
     </div>
     <div class="panel">
       <div class="mini-number" id="timeText">180</div>
@@ -536,7 +542,7 @@
   <div class="panel" style="padding:10px 12px;">
     <div class="stat-label" style="margin-bottom:7px;"><span>今日下班任务</span><b id="taskTotalText">0/6</b></div>
     <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; font-size:12px; font-weight:900;">
-      <div id="taskMsg" style="background:rgba(255,255,255,.64); border-radius:12px; padding:7px;">💬 聊天 0/3</div>
+      <div id="taskMsg" style="background:rgba(255,255,255,.64); border-radius:12px; padding:7px;">📧 沟通 0/3</div>
       <div id="taskMeet" style="background:rgba(255,255,255,.64); border-radius:12px; padding:7px;">👨‍💻 会议 0/2</div>
       <div id="taskPpt" style="background:rgba(255,255,255,.64); border-radius:12px; padding:7px;">📊 PPT 0/1</div>
     </div>
@@ -598,20 +604,20 @@
     { id: "veg", emoji: "🥬", kind: "food", energy: 3, score: 5, weight: 22 },
     { id: "carrot", emoji: "🥕", kind: "food", energy: 3, score: 5, weight: 16 },
 
-    { id: "msg", emoji: "💬", kind: "work", energy: -2, score: 10, weight: 18 },
+    { id: "msg", emoji: "📧", kind: "work", energy: -2, score: 10, weight: 18 },
     { id: "mail", emoji: "📧", kind: "work", energy: -2, score: 10, weight: 10 },
     { id: "meeting", emoji: "👨‍💻", kind: "work", energy: -5, score: 25, weight: 8 },
     { id: "ppt", emoji: "📊", kind: "work", energy: -10, score: 50, weight: 4 }
   ];
 
   const MEATS = [
-    { id: "chicken", emoji: "🍗", kind: "meat", energy: 10, score: 20 },
-    { id: "fish", emoji: "🐟", kind: "meat", energy: 10, score: 20 },
-    { id: "steak", emoji: "🥩", kind: "meat", energy: 10, score: 20 }
+    { id: "chicken", emoji: "🍗", kind: "meat", energy: 8, score: 20 },
+    { id: "fish", emoji: "🐟", kind: "meat", energy: 8, score: 20 },
+    { id: "steak", emoji: "🥩", kind: "meat", energy: 8, score: 20 }
   ];
 
-  const ROWS = 6;
-  const COLS = 6;
+  const ROWS = 8;
+  const COLS = 8;
   const TOTAL = ROWS * COLS;
   const MAX_ENERGY = 100;
   const START_ENERGY = 60;
@@ -635,7 +641,7 @@
   let board = [];
   let slots = [];
   let energy = START_ENERGY;
-  let score = 0; // removed display
+  let score = 0;
   let timeLeft = GAME_TIME;
   let idle = 0;
   let combo = 0;
@@ -747,7 +753,14 @@
 
     if (bossActive) {
       bossSeconds++;
-      if (bossSeconds % 8 === 0) lockFoodByBoss();
+      if (bossSeconds < 5) {
+        // 最少停留5秒
+      } else if (idle < 3) {
+        clearBoss(true);
+      }
+
+      bossSeconds++;
+      if (bossSeconds % 3 === 0) lockFoodByBoss();
       if (bossSeconds % 10 === 0) {
         changeEnergy(-5);
         showCenter("又被催了 -5", true);
@@ -891,7 +904,7 @@
       changeEnergy(-cost);
       totalWorkCost += cost;
 
-      idle -= 2;
+      idle -= (bossActive ? 1 : 2);
       if (idle < 0) idle = 0;
       showFloat("-" + cost + " 能量 / +" + (item.score * 3) + "分", "work", 0);
       showFloat("-2 摸鱼", "good", 26);
@@ -905,8 +918,15 @@
       }
 
       if (bossActive) {
+      bossSeconds++;
+      if (bossSeconds < 5) {
+        // 最少停留5秒
+      } else if (idle < 3) {
+        clearBoss(true);
+      }
+
         bossWorkGroups++;
-        if (bossWorkGroups >= BOSS_WORK_GROUPS_TO_LEAVE) {
+        if (false) {
           clearBoss(true);
         }
       }
@@ -918,7 +938,7 @@
       }
     }
 
-    if (!bossActive && bossCooldown <= 0 && idle >= IDLE_LIMIT) triggerBoss();
+    if (!bossActive && bossCooldown <= 0 && idle >= 3) triggerBoss();
 
     if (combo >= 2) showCenter("Combo ×" + combo + "!");
     setTimeout(() => { combo = 0; render(); }, 1600);
@@ -1022,7 +1042,7 @@
     document.getElementById("endOverlay").classList.add("show");
     document.getElementById("endTitle").innerText = win ? "活干完，下班！🎉" : (reason==="撑死了"||reason==="累死了" ? reason : (reason === "overtime" ? "下班失败：被迫加班 🫠" : "能量崩溃了 🫠"));
     document.getElementById("endDesc").innerText = win
-      ? "你靠吃饭续命，把聊天、会议和PPT都清掉了。"
+      ? "你靠吃饭续命，把沟通、会议和PPT都清掉了。"
       : (reason === "overtime" ? "3分钟到了，工作还没清完。老板：再改一版。" : "不是你不努力，是今天的工作真的太密了。");
     document.getElementById("endScore").innerText = score + " 分";
     document.getElementById("endStats").innerText =
@@ -1050,7 +1070,7 @@
 
     document.getElementById("energyText").innerText = Math.floor(energy) + "/100";
     document.getElementById("energyFill").style.width = Math.max(0, Math.min(100, energy)) + "%";
-    
+    document.getElementById("scoreRemoved").innerText = score;
     document.getElementById("timeText").innerText = timeLeft;
     document.getElementById("idleText").innerText = idle + "/" + IDLE_LIMIT + (idle >= 3 ? "  老板快来了" : "");
     document.getElementById("idleFill").style.width = (idle / IDLE_LIMIT * 100) + "%";
@@ -1058,7 +1078,7 @@
     document.getElementById("comboText").innerText = combo;
     document.getElementById("slotTip").innerText = slots.length + "/" + SLOT_MAX;
     document.getElementById("taskTotalText").innerText = taskTotal() + "/6";
-    document.getElementById("taskMsg").innerText = `💬 聊天 ${task.msg}/${taskTarget.msg}`;
+    document.getElementById("taskMsg").innerText = `📧 沟通 ${task.msg}/${taskTarget.msg}`;
     document.getElementById("taskMeet").innerText = `👨‍💻 会议 ${task.meeting}/${taskTarget.meeting}`;
     document.getElementById("taskPpt").innerText = `📊 PPT ${task.ppt}/${taskTarget.ppt}`;
 
