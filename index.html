@@ -41,10 +41,10 @@
     width: min(460px, 100vw);
     height: 100vh;
     margin: 0 auto;
-    padding: max(10px, env(safe-area-inset-top)) 12px max(10px, env(safe-area-inset-bottom));
+    padding: max(8px, env(safe-area-inset-top)) 10px max(6px, env(safe-area-inset-bottom));
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     position: relative;
   }
 
@@ -60,7 +60,7 @@
   }
 
   .title h1 {
-    font-size: 20px;
+    font-size: 18px;
     line-height: 1.1;
     margin: 0;
     letter-spacing: .3px;
@@ -101,8 +101,8 @@
   .panel {
     background: var(--card);
     border: 1px solid rgba(255,255,255,.65);
-    border-radius: 18px;
-    padding: 9px;
+    border-radius: 16px;
+    padding: 7px;
     box-shadow: var(--shadow);
     backdrop-filter: blur(8px);
   }
@@ -143,12 +143,12 @@
   }
 
   .boss-area {
-    height: 64px;
+    height: 0;
     position: relative;
-    background: rgba(255,255,255,.42);
-    border: 1px dashed rgba(95,64,64,.16);
-    border-radius: 18px;
-    overflow: hidden;
+    background: transparent;
+    border: 0;
+    overflow: visible;
+    z-index: 18;
   }
 
   .boss {
@@ -163,7 +163,7 @@
     gap: 8px;
     align-items: center;
     padding: 7px 10px;
-    border-radius: 18px;
+    border-radius: 16px;
     background: linear-gradient(180deg, #4c4c57, #282833);
     color: white;
     box-shadow: 0 18px 30px rgba(0,0,0,.28);
@@ -205,10 +205,10 @@
     transform: translate(-50%, -50%);
     z-index: 12;
     padding: 12px 18px;
-    border-radius: 18px;
+    border-radius: 16px;
     background: rgba(255,255,255,.92);
     box-shadow: var(--shadow);
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 1000;
     opacity: 0;
     pointer-events: none;
@@ -231,13 +231,13 @@
 
   .board {
     flex: 1;
-    min-height: 340px;
+    min-height: 270px;
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     grid-auto-rows: 1fr;
-    gap: 5px;
-    padding: 8px;
-    border-radius: 22px;
+    gap: 4px;
+    padding: 6px;
+    border-radius: 18px;
     background: rgba(255,255,255,.56);
     box-shadow: inset 0 0 0 1px rgba(255,255,255,.5), var(--shadow);
     position: relative;
@@ -328,8 +328,8 @@
 
   .slot-row {
     background: rgba(255,255,255,.7);
-    border-radius: 22px;
-    padding: 8px;
+    border-radius: 18px;
+    padding: 6px;
     box-shadow: var(--shadow);
   }
 
@@ -344,11 +344,11 @@
   .slots {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 5px;
+    gap: 4px;
   }
 
   .slot {
-    height: 46px;
+    height: 40px;
     border-radius: 13px;
     background: rgba(74,45,45,.09);
     display: flex;
@@ -469,17 +469,18 @@
   .float {
     position: absolute;
     z-index: 15;
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 1000;
     pointer-events: none;
-    animation: flyup .7s ease forwards;
+    animation: flyup 1.65s ease forwards;
     text-shadow: 0 2px 8px rgba(255,255,255,.8);
   }
 
   @keyframes flyup {
-    from { opacity: 0; transform: translate(-50%, 0) scale(.8); }
-    20% { opacity: 1; }
-    to { opacity: 0; transform: translate(-50%, -46px) scale(1.16); }
+    from { opacity: 0; transform: translate(-50%, 0) scale(.88); }
+    12% { opacity: 1; }
+    72% { opacity: 1; }
+    to { opacity: 0; transform: translate(-50%, -64px) scale(1.12); }
   }
 
   .footer-hint {
@@ -495,7 +496,7 @@
   <div class="top">
     <div class="title">
       <h1>🎮 打工人能量管理消消乐</h1>
-      <p>最后三分钟：吃饭补能量，完成今日工作，然后下班。</p>
+      <p>最后三分钟：补能量，清工作，然后下班。</p>
     </div>
     <div class="btns">
       <button id="pauseBtn">暂停</button>
@@ -560,11 +561,11 @@
       <div class="slots" id="slots"></div>
     </div>
 
-    <div class="skill-row">
+    <div class="skill-row" style="display:none;">
       <button class="action" id="undoBtn">↩️ 反悔 -10能量（2次）</button>
       <button class="action" id="shuffleBtn">🔄 重排 -8能量（1次）</button>
     </div>
-    <div class="footer-hint">目标：5格槽位里做选择，素食苟命，抢限时肉食，3分钟内清完今日工作。</div>
+    <div class="footer-hint">目标：5格槽位里抢肉、苟命、清工作，3分钟内下班。</div>
   </div>
 
   <div class="message" id="message">下班！</div>
@@ -610,7 +611,7 @@
     { id: "steak", emoji: "🥩", kind: "meat", energy: 10, score: 20 }
   ];
 
-  const ROWS = 10;
+  const ROWS = 8;
   const COLS = 8;
   const TOTAL = ROWS * COLS;
   const MAX_ENERGY = 100;
@@ -1086,7 +1087,7 @@
     el.style.marginTop = offsetY + "px";
     el.style.color = type === "good" ? "#25a85f" : (type === "bad" ? "#ff4d4f" : "#4d8dff");
     appEl.appendChild(el);
-    setTimeout(() => el.remove(), 900);
+    setTimeout(() => el.remove(), 1750);
   }
 
   let toastTimer = null;
