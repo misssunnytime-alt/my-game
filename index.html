@@ -152,11 +152,6 @@
   }
 
   .boss {
-    position: fixed;
-    right: 10px;
-    top: 80px;
-    z-index: 50;
-
     position: absolute;
     left: 50%;
     top: -88px;
@@ -501,7 +496,7 @@
   <div class="top">
     <div class="title">
       <h1>🎮 打工人能量管理消消乐</h1>
-      <p>最后三分钟：补能量，清工作，然后下班。</p>
+      <p>最后三分钟：补能量，清任务，然后下班。</p>
     </div>
     <div class="btns">
       <button id="pauseBtn">暂停</button>
@@ -515,8 +510,8 @@
       <div class="energy-bar"><div class="energy-fill" id="energyFill"></div></div>
     </div>
     <div class="panel">
-      <div class="mini-number" id="scoreRemoved">0</div>
-      <div class="mini-label">分数</div>
+      <div class="stat-label"><span>摸鱼值</span><b id="idleText">0/3</b></div>
+      <div class="energy-bar"><div class="energy-fill" id="idleFill" style="width:0%; background:linear-gradient(90deg,#7cc8ff,#8e63ff,#ff4d4f);"></div></div>
     </div>
     <div class="panel">
       <div class="mini-number" id="timeText">180</div>
@@ -524,11 +519,7 @@
     </div>
   </div>
 
-  <div class="hud">
-    <div class="panel">
-      <div class="stat-label"><span>摸鱼值</span><b id="idleText">0/5</b></div>
-      <div class="energy-bar"><div class="energy-fill" id="idleFill" style="width:0%; background:linear-gradient(90deg,#7cc8ff,#8e63ff,#ff4d4f);"></div></div>
-    </div>
+  <div class="hud" style="display:none;">
     <div class="panel">
       <div class="mini-number" id="workText">0</div>
       <div class="mini-label">老板期工作组</div>
@@ -540,18 +531,18 @@
   </div>
 
   <div class="panel" style="padding:10px 12px;">
-    <div class="stat-label" style="margin-bottom:7px;"><span>今日下班任务</span><b id="taskTotalText">0/6</b></div>
+    <div class="stat-label" style="margin-bottom:7px;"><span>今日下班任务</span><b id="taskTotalText">0/8</b></div>
     <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; font-size:12px; font-weight:900;">
-      <div id="taskMsg" style="background:rgba(255,255,255,.64); border-radius:12px; padding:7px;">📧 沟通 0/3</div>
-      <div id="taskMeet" style="background:rgba(255,255,255,.64); border-radius:12px; padding:7px;">👨‍💻 会议 0/2</div>
-      <div id="taskPpt" style="background:rgba(255,255,255,.64); border-radius:12px; padding:7px;">📊 PPT 0/1</div>
+      <div id="taskMsg" style="background:rgba(255,255,255,.64); border-radius:12px; padding:7px;">📧 邮件 0/4</div>
+      <div id="taskMeet" style="background:rgba(255,255,255,.64); border-radius:12px; padding:7px;">📊 PPT 0/2</div>
+      <div id="taskPpt" style="background:rgba(255,255,255,.64); border-radius:12px; padding:7px;">👨‍💻 会议 0/2</div>
     </div>
   </div>
 
   <div class="boss-area">
     <div class="boss" id="boss">
       <div class="boss-face">👔</div>
-      <div class="boss-text">老板来了<span>食物锁一半，先干活！</span></div>
+      <div class="boss-text" id="bossText">老板 Working...<span id="bossHint">摸鱼值满格后触发</span></div>
     </div>
   </div>
 
@@ -570,7 +561,7 @@
       <button class="action" id="undoBtn">↩️ 反悔 -10能量（2次）</button>
       <button class="action" id="shuffleBtn">🔄 重排 -8能量（1次）</button>
     </div>
-    <div class="footer-hint">目标：5格槽位里抢肉、苟命、清工作，3分钟内下班。</div>
+    <div class="footer-hint">目标：5格槽位里抢肉、苟命、清任务，3分钟内下班。</div>
   </div>
 
   <div class="message" id="message">下班！</div>
@@ -611,12 +602,12 @@
   ];
 
   const MEATS = [
-    { id: "chicken", emoji: "🍗", kind: "meat", energy: 8, score: 20 },
-    { id: "fish", emoji: "🐟", kind: "meat", energy: 8, score: 20 },
-    { id: "steak", emoji: "🥩", kind: "meat", energy: 8, score: 20 }
+    { id: "chicken", emoji: "🍗", kind: "meat", energy: 10, score: 20 },
+    { id: "fish", emoji: "🐟", kind: "meat", energy: 10, score: 20 },
+    { id: "steak", emoji: "🥩", kind: "meat", energy: 10, score: 20 }
   ];
 
-  const ROWS = 8;
+  const ROWS = 5;
   const COLS = 8;
   const TOTAL = ROWS * COLS;
   const MAX_ENERGY = 100;
@@ -624,7 +615,7 @@
   const FAIL_ENERGY = 20;
   const GAME_TIME = 180;
   const SLOT_MAX = 5;
-  const IDLE_LIMIT = 5;
+  const IDLE_LIMIT = 3;
   const BOSS_WORK_GROUPS_TO_LEAVE = 3;
   const BOSS_COOLDOWN = 15;
   const MEAT_LIFE = 3;
@@ -663,8 +654,8 @@
   let completedWorkGroups = 0;
   let totalFoodEnergy = 0;
   let totalWorkCost = 0;
-  let task = { msg: 0, meeting: 0, ppt: 0 };
-  const taskTarget = { msg: 3, meeting: 2, ppt: 1 };
+  let task = { email: 0, ppt: 0, meeting: 0 };
+  const taskTarget = { email: 4, ppt: 2, meeting: 2 };
   let lastRemoved = null;
   let meatDropIn = 7;
   let meatDrops = 0;
@@ -717,11 +708,12 @@
     bossCount = 0;
     completedFoodGroups = 0;
     completedWorkGroups = 0;
-    task = { msg: 0, meeting: 0, ppt: 0 };
+    task = { email: 0, ppt: 0, meeting: 0 };
     lastRemoved = null;
     meatDropIn = randomInt(MEAT_DROP_MIN, MEAT_DROP_MAX);
     meatDrops = 0;
     bossEl.classList.remove("show");
+    updateBossStatus();
     document.getElementById("startOverlay").classList.add("show");
     document.getElementById("endOverlay").classList.remove("show");
     render();
@@ -753,19 +745,15 @@
 
     if (bossActive) {
       bossSeconds++;
-      if (bossSeconds < 5) {
-        // 最少停留5秒
-      } else if (idle < 3) {
-        clearBoss(true);
-      }
-
-      bossSeconds++;
       if (bossSeconds % 3 === 0) lockFoodByBoss();
       if (bossSeconds % 10 === 0) {
         changeEnergy(-5);
-        showCenter("又被催了 -5", true);
+        showCenter("被催了 -5", true);
       }
       if (bossSeconds >= 30) lockFoodByBoss(0.6);
+      if (bossSeconds >= 5 && idle < 3) {
+        clearBoss(true);
+      }
     }
 
     timeLeft--;
@@ -918,17 +906,7 @@
       }
 
       if (bossActive) {
-      bossSeconds++;
-      if (bossSeconds < 5) {
-        // 最少停留5秒
-      } else if (idle < 3) {
-        clearBoss(true);
-      }
-
         bossWorkGroups++;
-        if (false) {
-          clearBoss(true);
-        }
       }
 
       if (workStreak >= 3) {
@@ -938,24 +916,24 @@
       }
     }
 
-    if (!bossActive && bossCooldown <= 0 && idle >= 3) triggerBoss();
+    if (!bossActive && bossCooldown <= 0 && idle >= IDLE_LIMIT) triggerBoss();
 
     if (combo >= 2) showCenter("Combo ×" + combo + "!");
     setTimeout(() => { combo = 0; render(); }, 1600);
   }
 
   function updateTaskProgress(item) {
-    if (item.id === "msg" || item.id === "mail") task.msg = Math.min(taskTarget.msg, task.msg + 1);
-    if (item.id === "meeting") task.meeting = Math.min(taskTarget.meeting, task.meeting + 1);
+    if (item.id === "msg" || item.id === "mail") task.email = Math.min(taskTarget.email, task.email + 1);
     if (item.id === "ppt") task.ppt = Math.min(taskTarget.ppt, task.ppt + 1);
+    if (item.id === "meeting") task.meeting = Math.min(taskTarget.meeting, task.meeting + 1);
   }
 
   function isTaskComplete() {
-    return task.msg >= taskTarget.msg && task.meeting >= taskTarget.meeting && task.ppt >= taskTarget.ppt;
+    return task.email >= taskTarget.email && task.ppt >= taskTarget.ppt && task.meeting >= taskTarget.meeting;
   }
 
   function taskTotal() {
-    return task.msg + task.meeting + task.ppt;
+    return task.email + task.ppt + task.meeting;
   }
 
   function triggerBoss() {
@@ -964,7 +942,7 @@
     bossWorkGroups = 0;
     bossCount++;
     bossEl.classList.add("show");
-    showCenter("老板来了！", true);
+    updateBossStatus();
     shake();
     lockFoodByBoss(0.5);
   }
@@ -987,10 +965,11 @@
     idle = 0;
     board.forEach(item => item.locked = false);
     bossEl.classList.remove("show");
+    updateBossStatus();
     if (success) {
       score += 50;
       showCenter("下班！+50");
-      toast("老板灰溜溜离开了。");
+      toast("老板继续工作去了。");
     }
     render();
   }
@@ -1046,7 +1025,7 @@
       : (reason === "overtime" ? "3分钟到了，工作还没清完。老板：再改一版。" : "不是你不努力，是今天的工作真的太密了。");
     document.getElementById("endScore").innerText = score + " 分";
     document.getElementById("endStats").innerText =
-      `任务 ${taskTotal()}/6｜食物 ${completedFoodGroups} 组｜工作 ${completedWorkGroups} 组｜老板出现 ${bossCount} 次`;
+      `任务 ${taskTotal()}/8｜食物 ${completedFoodGroups} 组｜工作 ${completedWorkGroups} 组｜老板出现 ${bossCount} 次`;
   }
 
   function render() {
@@ -1070,17 +1049,17 @@
 
     document.getElementById("energyText").innerText = Math.floor(energy) + "/100";
     document.getElementById("energyFill").style.width = Math.max(0, Math.min(100, energy)) + "%";
-    document.getElementById("scoreRemoved").innerText = score;
+    
     document.getElementById("timeText").innerText = timeLeft;
-    document.getElementById("idleText").innerText = idle + "/" + IDLE_LIMIT + (idle >= 3 ? "  老板快来了" : "");
+    document.getElementById("idleText").innerText = idle + "/" + IDLE_LIMIT + (idle >= 2 && !bossActive ? "  快满了" : "");
     document.getElementById("idleFill").style.width = (idle / IDLE_LIMIT * 100) + "%";
     document.getElementById("workText").innerText = bossActive ? bossWorkGroups + "/" + BOSS_WORK_GROUPS_TO_LEAVE : "0";
     document.getElementById("comboText").innerText = combo;
     document.getElementById("slotTip").innerText = slots.length + "/" + SLOT_MAX;
-    document.getElementById("taskTotalText").innerText = taskTotal() + "/6";
-    document.getElementById("taskMsg").innerText = `📧 沟通 ${task.msg}/${taskTarget.msg}`;
-    document.getElementById("taskMeet").innerText = `👨‍💻 会议 ${task.meeting}/${taskTarget.meeting}`;
-    document.getElementById("taskPpt").innerText = `📊 PPT ${task.ppt}/${taskTarget.ppt}`;
+    document.getElementById("taskTotalText").innerText = taskTotal() + "/8";
+    document.getElementById("taskMsg").innerText = `📧 邮件 ${task.email}/${taskTarget.email}`;
+    document.getElementById("taskMeet").innerText = `📊 PPT ${task.ppt}/${taskTarget.ppt}`;
+    document.getElementById("taskPpt").innerText = `👨‍💻 会议 ${task.meeting}/${taskTarget.meeting}`;
 
     document.getElementById("undoBtn").innerText = `↩️ 反悔 -10能量（${undoLeft}次）`;
     document.getElementById("shuffleBtn").innerText = `🔄 重排 -8能量（${shuffleLeft}次）`;
@@ -1088,6 +1067,19 @@
     document.getElementById("undoBtn").classList.toggle("disabled", undoLeft <= 0);
     document.getElementById("shuffleBtn").classList.toggle("disabled", shuffleLeft <= 0);
     appEl.classList.toggle("danger", energy <= 40);
+  }
+
+  function updateBossStatus() {
+    const bossText = document.getElementById("bossText");
+    const bossHint = document.getElementById("bossHint");
+    if (!bossText || !bossHint) return;
+    if (bossActive) {
+      bossText.childNodes[0].nodeValue = "Boss is coming";
+      bossHint.textContent = "食物锁一半，先降摸鱼值";
+    } else {
+      bossText.childNodes[0].nodeValue = "老板 Working...";
+      bossHint.textContent = "摸鱼值满格后触发";
+    }
   }
 
   function showCenter(text, scary) {
