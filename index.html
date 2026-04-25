@@ -490,6 +490,109 @@
     margin-top: -2px;
   }
 </style>
+
+<style id="v13-hard-fix">
+  /* 老板状态条：固定在任务条与棋盘之间，不允许漂浮覆盖棋盘 */
+  .boss-area {
+    height: 54px !important;
+    position: relative !important;
+    display: block !important;
+    margin: 4px 0 6px !important;
+    background: rgba(255,255,255,.72) !important;
+    border: 1px solid rgba(255,255,255,.78) !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+    box-shadow: 0 8px 20px rgba(83,45,45,.14) !important;
+    z-index: 1 !important;
+  }
+
+  .boss {
+    position: relative !important;
+    inset: auto !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: grid !important;
+    grid-template-columns: 42px 1fr !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 6px 12px !important;
+    border-radius: 16px !important;
+    background: linear-gradient(145deg, #eeeeee, #ffffff) !important;
+    color: #8a7a7a !important;
+    box-shadow: none !important;
+  }
+
+  .boss.show {
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+    background: linear-gradient(145deg, #9d1f2f, #ff4158) !important;
+    color: white !important;
+    animation: bossAlert .65s infinite alternate !important;
+  }
+
+  .boss-face {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    border-radius: 50% !important;
+    background: rgba(255,255,255,.72) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 22px !important;
+  }
+
+  .boss-text {
+    text-align: left !important;
+    font-size: 14px !important;
+    line-height: 1.12 !important;
+    font-weight: 1000 !important;
+  }
+
+  .boss-text span {
+    display: block !important;
+    font-size: 11px !important;
+    margin-top: 3px !important;
+    opacity: .82 !important;
+  }
+
+  /* 棋盘：整体长方形，内部每个图标严格正方形 */
+  .board {
+    flex: 0 0 auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+    display: grid !important;
+    grid-template-columns: repeat(8, 1fr) !important;
+    grid-auto-rows: auto !important;
+    gap: 5px !important;
+    padding: 6px !important;
+    border-radius: 18px !important;
+  }
+
+  .tile {
+    width: 100% !important;
+    aspect-ratio: 1 / 1 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    border-radius: 13px !important;
+    font-size: clamp(22px, 6vw, 30px) !important;
+  }
+
+  .board-wrap {
+    flex: 0 0 auto !important;
+  }
+
+  .slot-row {
+    margin-top: 4px !important;
+  }
+</style>
+
 </head>
 <body>
 <div class="app" id="app">
@@ -539,11 +642,12 @@
     </div>
   </div>
 
-  <div class="boss-area">
+  <div class="boss-area" id="bossArea">
     <div class="boss" id="boss">
       <div class="boss-face">👔</div>
       <div class="boss-text" id="bossText">老板 Working...<span id="bossHint">摸鱼值满格后触发</span></div>
     </div>
+  </div>
   </div>
 
   <div class="board-wrap">
